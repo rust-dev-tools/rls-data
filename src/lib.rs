@@ -7,6 +7,9 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![cfg_attr(rustbuild, feature(staged_api, rustc_private))]
+#![cfg_attr(rustbuild, unstable(feature = "rustc_private", issue = "27812"))]
+
 extern crate serde;
 extern crate serde_json;
 #[macro_use]
