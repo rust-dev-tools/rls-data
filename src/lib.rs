@@ -14,8 +14,11 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
+extern crate rls_span as span;
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+use std::path::PathBuf;
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub enum Format {
     Csv,
     Json,
@@ -33,13 +36,13 @@ impl Format {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Analysis {
-    kind: Format,
-    prelude: Option<CratePreludeData>,
-    imports: Vec<Import>,
-    defs: Vec<Def>,
-    refs: Vec<Ref>,
-    macro_refs: Vec<MacroRef>,
-    relations: Vec<Relation>,
+    pub kind: Format,
+    pub prelude: Option<CratePreludeData>,
+    pub imports: Vec<Import>,
+    pub defs: Vec<Def>,
+    pub refs: Vec<Ref>,
+    pub macro_refs: Vec<MacroRef>,
+    pub relations: Vec<Relation>,
 }
 
 impl Analysis {
@@ -60,21 +63,34 @@ impl Analysis {
 // we use our own Id which is the same, but without the newtype.
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct Id {
-    krate: u32,
-    index: u32,
+    pub krate: u32,
+    pub index: u32,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+// TODO
+// #[derive(Debug, Deserialize, Serialize)]
+// pub struct SpanData {
+//     pub file_name: String,
+//     pub byte_start: u32,
+//     pub byte_end: u32,
+//     /// 1-based.
+//     pub line_start: usize,
+//     pub line_end: usize,
+//     /// 1-based, character offset.
+//     pub column_start: usize,
+//     pub column_end: usize,
+// }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SpanData {
-    pub file_name: String,
+    pub file_name: PathBuf,
     pub byte_start: u32,
     pub byte_end: u32,
-    /// 1-based.
-    pub line_start: usize,
-    pub line_end: usize,
-    /// 1-based, character offset.
-    pub column_start: usize,
-    pub column_end: usize,
+    pub line_start: span::Row<span::OneIndexed>,
+    pub line_end: span::Row<span::OneIndexed>,
+    // Character offset.
+    pub column_start: span::Column<span::OneIndexed>,
+    pub column_end: span::Column<span::OneIndexed>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -94,14 +110,14 @@ pub struct ExternalCrateData {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Import {
-    kind: ImportKind,
-    ref_id: Option<Id>,
-    span: SpanData,
-    name: String,
-    value: String,
+    pub kind: ImportKind,
+    pub ref_id: Option<Id>,
+    pub span: SpanData,
+    pub name: String,
+    pub value: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
 pub enum ImportKind {
     ExternCrate,
     Use,
@@ -110,19 +126,20 @@ pub enum ImportKind {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Def {
-    kind: DefKind,
-    id: Id,
-    span: SpanData,
-    name: String,
-    qualname: String,
-    value: String,
-    children: Vec<Id>,
-    decl_id: Option<Id>,
-    docs: String,
-    sig: Option<Signature>,
+    pub kind: DefKind,
+    pub id: Id,
+    pub span: SpanData,
+    pub name: String,
+    pub qualname: String,
+    pub value: String,
+    pub parent: Option<Id>,
+    pub children: Vec<Id>,
+    pub decl_id: Option<Id>,
+    pub docs: String,
+    pub sig: Option<Signature>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
 pub enum DefKind {
     // value = variant names
     Enum,
@@ -130,6 +147,7 @@ pub enum DefKind {
     Tuple,
     // value = [enum name +] name + fields
     Struct,
+    Union,
     // value = signature
     Trait,
     // value = type + generics
@@ -151,12 +169,12 @@ pub enum DefKind {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Ref {
-    kind: RefKind,
-    span: SpanData,
-    ref_id: Id,
+    pub kind: RefKind,
+    pub span: SpanData,
+    pub ref_id: Id,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
 pub enum RefKind {
     Function,
     Mod,
@@ -167,20 +185,20 @@ pub enum RefKind {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MacroRef {
-    span: SpanData,
-    qualname: String,
-    callee_span: SpanData,
+    pub span: SpanData,
+    pub qualname: String,
+    pub callee_span: SpanData,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Relation {
-    span: SpanData,
-    kind: RelationKind,
-    from: Id,
-    to: Id,
+    pub span: SpanData,
+    pub kind: RelationKind,
+    pub from: Id,
+    pub to: Id,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
 pub enum RelationKind {
     Impl,
     SuperTrait,
@@ -188,17 +206,17 @@ pub enum RelationKind {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Signature {
-    span: SpanData,
-    text: String,
-    ident_start: usize,
-    ident_end: usize,
-    defs: Vec<SigElement>,
-    refs: Vec<SigElement>,
+    pub span: SpanData,
+    pub text: String,
+    pub ident_start: usize,
+    pub ident_end: usize,
+    pub defs: Vec<SigElement>,
+    pub refs: Vec<SigElement>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SigElement {
-    id: Id,
-    start: usize,
-    end: usize,
+    pub id: Id,
+    pub start: usize,
+    pub end: usize,
 }
