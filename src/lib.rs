@@ -31,7 +31,7 @@ impl Format {
     }
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Analysis {
     pub kind: Format,
     pub prelude: Option<CratePreludeData>,
@@ -64,7 +64,7 @@ pub struct Id {
     pub index: u32,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct SpanData {
     pub file_name: PathBuf,
     pub byte_start: u32,
@@ -76,7 +76,7 @@ pub struct SpanData {
     pub column_end: span::Column<span::OneIndexed>,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct CratePreludeData {
     pub crate_name: String,
     pub crate_root: String,
@@ -84,14 +84,15 @@ pub struct CratePreludeData {
     pub span: SpanData,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+/// Data for external crates in the prelude of a crate.
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct ExternalCrateData {
     pub name: String,
     pub num: u32,
     pub file_name: String,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Import {
     pub kind: ImportKind,
     pub ref_id: Option<Id>,
@@ -107,7 +108,7 @@ pub enum ImportKind {
     GlobUse,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Def {
     pub kind: DefKind,
     pub id: Id,
@@ -151,13 +152,13 @@ pub enum DefKind {
     Field,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Attribute {
     pub value: String,
     pub span: SpanData,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Ref {
     pub kind: RefKind,
     pub span: SpanData,
@@ -173,14 +174,14 @@ pub enum RefKind {
 }
 
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct MacroRef {
     pub span: SpanData,
     pub qualname: String,
     pub callee_span: SpanData,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Relation {
     pub span: SpanData,
     pub kind: RelationKind,
@@ -194,7 +195,7 @@ pub enum RelationKind {
     SuperTrait,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Signature {
     pub span: SpanData,
     pub text: String,
@@ -204,7 +205,7 @@ pub struct Signature {
     pub refs: Vec<SigElement>,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable)]
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct SigElement {
     pub id: Id,
     pub start: usize,
