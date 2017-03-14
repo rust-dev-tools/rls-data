@@ -120,6 +120,7 @@ pub struct Def {
     pub decl_id: Option<Id>,
     pub docs: String,
     pub sig: Option<Signature>,
+    pub attributes: Vec<Attribute>,
 }
 
 #[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy, PartialEq, Eq)]
@@ -148,6 +149,12 @@ pub enum DefKind {
     Static,
     Const,
     Field,
+}
+
+#[derive(Debug, RustcDecodable, RustcEncodable)]
+pub struct Attribute {
+    pub value: String,
+    pub span: SpanData,
 }
 
 #[derive(Debug, RustcDecodable, RustcEncodable)]
