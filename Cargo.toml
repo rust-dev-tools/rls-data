@@ -8,5 +8,5 @@ repository = "https://github.com/nrc/rls-data"
 categories = ["development-tools"]
 
 [dependencies]
-rls-span = { git = "https://github.com/nrc/rls-span", features = ["serialize-rustc"] }
+rls-span = { version = "0.1", features = ["serialize-rustc"] }
 rustc-serialize = "0.3"
