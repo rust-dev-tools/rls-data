@@ -32,6 +32,7 @@ impl Format {
 }
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[repr(C)]
 pub struct Analysis {
     pub kind: Format,
     pub prelude: Option<CratePreludeData>,
