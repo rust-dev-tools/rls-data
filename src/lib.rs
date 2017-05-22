@@ -38,6 +38,7 @@ pub struct Analysis {
     pub prelude: Option<CratePreludeData>,
     pub imports: Vec<Import>,
     pub defs: Vec<Def>,
+    pub impls: Vec<Impl>,
     pub refs: Vec<Ref>,
     pub macro_refs: Vec<MacroRef>,
     pub relations: Vec<Relation>,
@@ -50,6 +51,7 @@ impl Analysis {
             prelude: None,
             imports: vec![],
             defs: vec![],
+            impls: vec![],
             refs: vec![],
             macro_refs: vec![],
             relations: vec![],
@@ -59,7 +61,7 @@ impl Analysis {
 
 // DefId::index is a newtype and so the JSON serialisation is ugly. Therefore
 // we use our own Id which is the same, but without the newtype.
-#[derive(Clone, Copy, Debug, RustcDecodable, RustcEncodable)]
+#[derive(Clone, Copy, Debug, RustcDecodable, RustcEncodable, PartialEq, Eq)]
 pub struct Id {
     pub krate: u32,
     pub index: u32,
@@ -154,6 +156,36 @@ pub enum DefKind {
 }
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+pub struct Impl {
+    pub id: u32,
+    pub kind: ImplKind,
+    pub span: SpanData,
+    pub value: String,
+    pub parent: Option<Id>,
+    pub children: Vec<Id>,
+    pub docs: String,
+    pub sig: Option<Signature>,
+    pub attributes: Vec<Attribute>,
+}
+
+#[derive(Debug, RustcDecodable, RustcEncodable, Clone, PartialEq, Eq)]
+pub enum ImplKind {
+    // impl Foo { ... }
+    Inherent,
+    // impl Bar for Foo { ... }
+    Direct,
+    // impl Bar for &Foo { ... }
+    Indirect,
+    // impl<T: Baz> Bar for T { ... }
+    //   where Foo: Baz
+    Blanket,
+    // impl Bar for Baz { ... } or impl Baz { ... }, etc.
+    //   where Foo: Deref<Target = Baz>
+    // Args are name and id of Baz
+    Deref(String, Id),
+}
+
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Attribute {
     pub value: String,
     pub span: SpanData,
@@ -173,7 +205,6 @@ pub enum RefKind {
     Type,
     Variable,
 }
-
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct MacroRef {
