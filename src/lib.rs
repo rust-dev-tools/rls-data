@@ -227,19 +227,58 @@ pub enum RelationKind {
     SuperTrait,
 }
 
+// TODO where clauses
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
-pub struct Signature {
-    pub span: SpanData,
-    pub text: String,
-    pub ident_start: usize,
-    pub ident_end: usize,
-    pub defs: Vec<SigElement>,
-    pub refs: Vec<SigElement>,
+pub enum Signature {
+    Fn {
+        args: Vec<(SigElement, TypeSig)>,
+        return_type: TypeSig,
+        generics: Vec<(SigElement, Vec<BoundSig>)>,
+        self_: Option<String>,
+    },
+    // Trait, struct, enum, etc.
+    TypeDecl {
+        generics: Vec<(SigElement, Vec<BoundSig>)>,
+    },
+    Alias {
+        rhs: TypeSig,
+        generics: Vec<(SigElement, Vec<BoundSig>)>,
+    },
+    Impl {
+        self_type: TypeSig,
+        trait_: TypeSig, // None or Named
+        generics: Vec<(SigElement, Vec<BoundSig>)>,
+    },
+    None,
 }
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct SigElement {
     pub id: Id,
-    pub start: usize,
-    pub end: usize,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+pub enum TypeSig {
+    Bang,
+    Ref {
+        mutable: bool,
+        lifetime: Option<SigElement>,
+        nested: Box<TypeSig>
+    },
+    Named {
+        id: Id,
+        name: String,
+        generics: Vec<(SigElement, Vec<BoundSig>)>
+    },
+    // TODO tuple, array (var + fixed len), raw pointer, fn, impl Trait, qself path assoc type
+    None,
+}
+
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+pub enum BoundSig {
+    Type(TypeSig),
+    Maybe(TypeSig),
+    Lifetime(SigElement),
+    None,
 }
