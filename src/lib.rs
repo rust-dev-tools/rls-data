@@ -38,7 +38,6 @@ pub struct Analysis {
     pub prelude: Option<CratePreludeData>,
     pub imports: Vec<Import>,
     pub defs: Vec<Def>,
-    pub impls: Vec<Impl>,
     pub refs: Vec<Ref>,
     pub macro_refs: Vec<MacroRef>,
     pub relations: Vec<Relation>,
@@ -51,7 +50,6 @@ impl Analysis {
             prelude: None,
             imports: vec![],
             defs: vec![],
-            impls: vec![],
             refs: vec![],
             macro_refs: vec![],
             relations: vec![],
@@ -123,7 +121,6 @@ pub struct Def {
     pub children: Vec<Id>,
     pub decl_id: Option<Id>,
     pub docs: String,
-    pub sig: Option<Signature>,
     pub attributes: Vec<Attribute>,
 }
 
@@ -164,7 +161,6 @@ pub struct Impl {
     pub parent: Option<Id>,
     pub children: Vec<Id>,
     pub docs: String,
-    pub sig: Option<Signature>,
     pub attributes: Vec<Attribute>,
 }
 
