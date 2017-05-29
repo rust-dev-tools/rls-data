@@ -42,6 +42,7 @@ pub struct Analysis {
     pub refs: Vec<Ref>,
     pub macro_refs: Vec<MacroRef>,
     pub relations: Vec<Relation>,
+    pub borrows: Vec<Borrows>,
 }
 
 impl Analysis {
@@ -55,6 +56,7 @@ impl Analysis {
             refs: vec![],
             macro_refs: vec![],
             relations: vec![],
+            borrows: vec![],
         }
     }
 }
@@ -239,4 +241,60 @@ pub struct SigElement {
     pub id: Id,
     pub start: usize,
     pub end: usize,
+}
+
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+pub struct Borrows {
+    pub ref_id: Id,
+    pub assignments: Vec<Assignment>,
+    pub loans: Vec<Loan>,
+    pub moves: Vec<Move>,
+}
+
+#[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy)]
+pub enum BorrowKind {
+    ImmBorrow,
+    MutBorrow,
+}
+
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+pub enum CauseData {
+    ClosureCapture(SpanData),
+    AddrOf,
+    AutoRef,
+    AutoUnsafe,
+    RefBinding,
+    OverloadedOperator,
+    ClosureInvocation,
+    ForLoop,
+    MatchDiscriminant
+}
+
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+pub struct Loan {
+    pub ref_id: Id,
+    pub kind: BorrowKind,
+    pub span: SpanData,
+    pub cause: CauseData,
+}
+
+#[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy)]
+pub enum MoveKindData {
+    Declared,
+    MoveExpr,
+    MovePat,
+    Captured,
+}
+
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+pub struct Move {
+    pub ref_id: Id,
+    pub kind: MoveKindData,
+    pub span: SpanData,
+}
+
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+pub struct Assignment {
+    pub ref_id: Id,
+    pub span: SpanData,
 }
