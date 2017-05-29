@@ -123,7 +123,7 @@ pub struct Def {
     pub children: Vec<Id>,
     pub decl_id: Option<Id>,
     pub docs: String,
-    pub sig: Signature,
+    pub sig: Option<Signature>,
     pub attributes: Vec<Attribute>,
 }
 
@@ -164,7 +164,7 @@ pub struct Impl {
     pub parent: Option<Id>,
     pub children: Vec<Id>,
     pub docs: String,
-    pub sig: Signature,
+    pub sig: Option<Signature>,
     pub attributes: Vec<Attribute>,
 }
 
@@ -227,58 +227,16 @@ pub enum RelationKind {
     SuperTrait,
 }
 
-// TODO where clauses
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
-pub enum Signature {
-    Fn {
-        args: Vec<(SigElement, TypeSig)>,
-        return_type: TypeSig,
-        generics: Vec<(SigElement, Vec<BoundSig>)>,
-        self_: Option<String>,
-    },
-    // Trait, struct, enum, etc.
-    TypeDecl {
-        generics: Vec<(SigElement, Vec<BoundSig>)>,
-    },
-    Alias {
-        rhs: TypeSig,
-        generics: Vec<(SigElement, Vec<BoundSig>)>,
-    },
-    Impl {
-        self_type: TypeSig,
-        trait_: TypeSig, // None or Named
-        generics: Vec<(SigElement, Vec<BoundSig>)>,
-    },
-    None,
+pub struct Signature {
+    pub text: String,
+    pub defs: Vec<SigElement>,
+    pub refs: Vec<SigElement>,
 }
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct SigElement {
     pub id: Id,
-    pub name: String,
-}
-
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
-pub enum TypeSig {
-    Bang,
-    Ref {
-        mutable: bool,
-        lifetime: Option<SigElement>,
-        nested: Box<TypeSig>
-    },
-    Named {
-        id: Id,
-        name: String,
-        generics: Vec<(SigElement, Vec<BoundSig>)>
-    },
-    // TODO tuple, array (var + fixed len), raw pointer, fn, impl Trait, qself path assoc type
-    None,
-}
-
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
-pub enum BoundSig {
-    Type(TypeSig),
-    Maybe(TypeSig),
-    Lifetime(SigElement),
-    None,
+    pub start: usize,
+    pub end: usize,
 }
