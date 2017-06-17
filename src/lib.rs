@@ -42,10 +42,12 @@ pub struct Analysis {
     pub refs: Vec<Ref>,
     pub macro_refs: Vec<MacroRef>,
     pub relations: Vec<Relation>,
-    pub borrows: Vec<Borrows>,
+    #[cfg(feature = "borrows")]
+    pub per_fn_borrows: Vec<BorrowData>,
 }
 
 impl Analysis {
+    #[cfg(not(feature = "borrows"))]
     pub fn new() -> Analysis {
         Analysis {
             kind: Format::Json,
@@ -56,7 +58,21 @@ impl Analysis {
             refs: vec![],
             macro_refs: vec![],
             relations: vec![],
-            borrows: vec![],
+        }
+    }
+
+    #[cfg(feature = "borrows")]
+    pub fn new() -> Analysis {
+        Analysis {
+            kind: Format::Json,
+            prelude: None,
+            imports: vec![],
+            defs: vec![],
+            impls: vec![],
+            refs: vec![],
+            macro_refs: vec![],
+            relations: vec![],
+            per_fn_borrows: vec![],
         }
     }
 }
@@ -243,58 +259,51 @@ pub struct SigElement {
     pub end: usize,
 }
 
+// Each `BorrowData` represents all of the scopes, loans and moves
+// within an fn or closure referred to by `ref_id`.
+#[cfg(feature = "borrows")]
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
-pub struct Borrows {
+pub struct BorrowData {
     pub ref_id: Id,
-    pub assignments: Vec<Assignment>,
+    pub scopes: Vec<Scope>,
     pub loans: Vec<Loan>,
     pub moves: Vec<Move>,
 }
 
+#[cfg(feature = "borrows")]
 #[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy)]
 pub enum BorrowKind {
     ImmBorrow,
     MutBorrow,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
-pub enum CauseData {
-    ClosureCapture(SpanData),
-    AddrOf,
-    AutoRef,
-    AutoUnsafe,
-    RefBinding,
-    OverloadedOperator,
-    ClosureInvocation,
-    ForLoop,
-    MatchDiscriminant
-}
-
+// Each `Loan` is either temporary or assigned to a variable.
+// The `ref_id` refers to the value that is being loaned/borrowed.
+// Not all loans will be valid. Invalid loans can be used to help explain
+// improper usage.
+#[cfg(feature = "borrows")]
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Loan {
     pub ref_id: Id,
     pub kind: BorrowKind,
     pub span: SpanData,
-    pub cause: CauseData,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy)]
-pub enum MoveKindData {
-    Declared,
-    MoveExpr,
-    MovePat,
-    Captured,
-}
-
+// Each `Move` represents an attempt to move the value referred to by `ref_id`.
+// Not all `Move`s will be valid but can be used to help explain improper usage.
+#[cfg(feature = "borrows")]
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct Move {
     pub ref_id: Id,
-    pub kind: MoveKindData,
     pub span: SpanData,
 }
 
+// Each `Scope` refers to "scope" of a variable (we don't track all values here).
+// Its ref_id refers to the variable, and the span refers to the scope/region where
+// the variable is "live".
+#[cfg(feature = "borrows")]
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
-pub struct Assignment {
+pub struct Scope {
     pub ref_id: Id,
     pub span: SpanData,
 }
