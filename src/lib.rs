@@ -79,7 +79,7 @@ impl Analysis {
 
 // DefId::index is a newtype and so the JSON serialisation is ugly. Therefore
 // we use our own Id which is the same, but without the newtype.
-#[derive(Clone, Copy, Debug, RustcDecodable, RustcEncodable, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, RustcDecodable, RustcEncodable, PartialEq, Eq, Hash)]
 pub struct Id {
     pub krate: u32,
     pub index: u32,
@@ -268,6 +268,7 @@ pub struct BorrowData {
     pub scopes: Vec<Scope>,
     pub loans: Vec<Loan>,
     pub moves: Vec<Move>,
+    pub span: Option<SpanData>,
 }
 
 #[cfg(feature = "borrows")]
