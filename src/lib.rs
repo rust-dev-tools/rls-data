@@ -13,6 +13,8 @@
 extern crate rustc_serialize;
 extern crate rls_span as span;
 
+pub mod config;
+
 use std::path::PathBuf;
 
 #[derive(Clone, Copy, Debug, RustcDecodable, RustcEncodable, PartialEq, Eq)]
