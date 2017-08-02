@@ -8,6 +8,7 @@
 // except according to those terms.
 
 /// Used to configure save-analysis.
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Default, RustcDecodable, RustcEncodable)]
 pub struct Config {
     /// File to output save-analysis data to.

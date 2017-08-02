@@ -13,6 +13,12 @@
 extern crate rustc_serialize;
 extern crate rls_span as span;
 
+#[cfg(feature = "serialize-serde")]
+extern crate serde;
+#[cfg(feature = "serialize-serde")]
+#[macro_use]
+extern crate serde_derive;
+
 pub mod config;
 
 use std::path::PathBuf;
