@@ -18,6 +18,8 @@ pub struct Config {
     /// If true only includes data for public items in a crate (useful for
     /// library crates).
     pub pub_only: bool,
+    /// True if and only if the analysed crate is part of the standard Rust distro.
+    pub distro_crate: bool,
     /// Include signature information.
     pub signatures: bool,
     /// Include experimental borrow data.
