@@ -167,6 +167,8 @@ pub enum DefKind {
     Static,
     Const,
     Field,
+    // no value
+    ExternType,
 }
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
