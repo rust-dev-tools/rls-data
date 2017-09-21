@@ -146,8 +146,12 @@ pub enum DefKind {
     // value = variant names
     Enum,
     // value = enum name + variant name + types
+    TupleVariant,
+    // value = enum name + name + fields
+    StructVariant,
+    // value = variant name + types
     Tuple,
-    // value = [enum name +] name + fields
+    // value = name + fields
     Struct,
     Union,
     // value = signature
