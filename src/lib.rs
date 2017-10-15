@@ -97,6 +97,7 @@ pub struct SpanData {
 pub struct CratePreludeData {
     pub crate_name: String,
     pub crate_root: String,
+    pub crate_disambiguator: String,
     pub external_crates: Vec<ExternalCrateData>,
     pub span: SpanData,
 }
@@ -104,9 +105,14 @@ pub struct CratePreludeData {
 /// Data for external crates in the prelude of a crate.
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct ExternalCrateData {
-    pub name: String,
-    pub num: u32,
+    /// Source file where the external crate is declared.
     pub file_name: String,
+    /// A crate-local crate index of an external crate. Local crate index is
+    /// always 0, so these should start from 1 and range should be contiguous,
+    /// e.g. from 1 to n for n external crates.
+    pub num: u32,
+    pub name: String,
+    pub disambiguator: String,
 }
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
