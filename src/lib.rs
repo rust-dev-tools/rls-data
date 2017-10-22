@@ -81,6 +81,15 @@ pub struct Id {
     pub index: u32,
 }
 
+/// This represents a globally unique crate identifier, which should allow
+/// for differentiation between different crate targets or versions and should
+/// point to the same crate when pulled by different other, dependent crates.
+#[derive(Debug, Clone, RustcDecodable, RustcEncodable, PartialEq, Eq, Hash)]
+pub struct GlobalCrateId {
+    pub name: String,
+    pub disambiguator: String,
+}
+
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct SpanData {
     pub file_name: PathBuf,
@@ -95,9 +104,8 @@ pub struct SpanData {
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
 pub struct CratePreludeData {
-    pub crate_name: String,
+    pub crate_id: GlobalCrateId,
     pub crate_root: String,
-    pub crate_disambiguator: String,
     pub external_crates: Vec<ExternalCrateData>,
     pub span: SpanData,
 }
@@ -111,8 +119,7 @@ pub struct ExternalCrateData {
     /// always 0, so these should start from 1 and range should be contiguous,
     /// e.g. from 1 to n for n external crates.
     pub num: u32,
-    pub name: String,
-    pub disambiguator: String,
+    pub id: GlobalCrateId,
 }
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
