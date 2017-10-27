@@ -81,13 +81,14 @@ pub struct Id {
     pub index: u32,
 }
 
-/// This represents a globally unique crate identifier, which should allow
-/// for differentiation between different crate targets or versions and should
-/// point to the same crate when pulled by different other, dependent crates.
+/// Crate name, along with its disambiguator (128-bit hash) represents a globally
+/// unique crate identifier, which should allow for differentiation between
+/// different crate targets or versions and should point to the same crate when
+/// pulled by different other, dependent crates.
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable, PartialEq, Eq, Hash)]
 pub struct GlobalCrateId {
     pub name: String,
-    pub disambiguator: String,
+    pub disambiguator: (u64, u64),
 }
 
 #[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
