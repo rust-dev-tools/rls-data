@@ -130,6 +130,7 @@ pub struct Import {
     pub span: SpanData,
     pub name: String,
     pub value: String,
+    pub parent: Option<Id>,
 }
 
 #[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy, PartialEq, Eq)]
