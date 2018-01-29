@@ -254,12 +254,13 @@ pub struct Relation {
     pub kind: RelationKind,
     pub from: Id,
     pub to: Id,
-    pub id: u32,
 }
 
 #[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy, PartialEq, Eq)]
 pub enum RelationKind {
-    Impl,
+    Impl {
+        id: u32,
+    },
     SuperTrait,
 }
 
