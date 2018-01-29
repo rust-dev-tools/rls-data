@@ -203,7 +203,7 @@ pub struct Impl {
     pub attributes: Vec<Attribute>,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, RustcDecodable, RustcEncodable, Clone, PartialEq, Eq)]
 pub enum ImplKind {
     // impl Foo { ... }
     Inherent,
