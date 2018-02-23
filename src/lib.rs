@@ -10,6 +10,7 @@
 #![cfg_attr(rustbuild, feature(staged_api, rustc_private))]
 #![cfg_attr(rustbuild, unstable(feature = "rustc_private", issue = "27812"))]
 
+#[cfg(feature = "serialize-rustc")]
 extern crate rustc_serialize;
 extern crate rls_span as span;
 
@@ -26,7 +27,9 @@ use std::path::PathBuf;
 use config::Config;
 
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone, Default)]
 #[repr(C)]
 pub struct Analysis {
     /// The Config used to generate this analysis data.
@@ -75,7 +78,9 @@ impl Analysis {
 
 // DefId::index is a newtype and so the JSON serialisation is ugly. Therefore
 // we use our own Id which is the same, but without the newtype.
-#[derive(Clone, Copy, Debug, RustcDecodable, RustcEncodable, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Id {
     pub krate: u32,
     pub index: u32,
@@ -85,13 +90,17 @@ pub struct Id {
 /// unique crate identifier, which should allow for differentiation between
 /// different crate targets or versions and should point to the same crate when
 /// pulled by different other, dependent crates.
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct GlobalCrateId {
     pub name: String,
     pub disambiguator: (u64, u64),
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct SpanData {
     pub file_name: PathBuf,
     pub byte_start: u32,
@@ -103,7 +112,9 @@ pub struct SpanData {
     pub column_end: span::Column<span::OneIndexed>,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct CratePreludeData {
     pub crate_id: GlobalCrateId,
     pub crate_root: String,
@@ -112,7 +123,9 @@ pub struct CratePreludeData {
 }
 
 /// Data for external crates in the prelude of a crate.
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct ExternalCrateData {
     /// Source file where the external crate is declared.
     pub file_name: String,
@@ -123,7 +136,9 @@ pub struct ExternalCrateData {
     pub id: GlobalCrateId,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Import {
     pub kind: ImportKind,
     pub ref_id: Option<Id>,
@@ -133,14 +148,18 @@ pub struct Import {
     pub parent: Option<Id>,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ImportKind {
     ExternCrate,
     Use,
     GlobUse,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Def {
     pub kind: DefKind,
     pub id: Id,
@@ -156,7 +175,9 @@ pub struct Def {
     pub attributes: Vec<Attribute>,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DefKind {
     // value = variant names
     Enum,
@@ -190,7 +211,9 @@ pub enum DefKind {
     ExternType,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Impl {
     pub id: u32,
     pub kind: ImplKind,
@@ -203,7 +226,9 @@ pub struct Impl {
     pub attributes: Vec<Attribute>,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ImplKind {
     // impl Foo { ... }
     Inherent,
@@ -220,20 +245,26 @@ pub enum ImplKind {
     Deref(String, Id),
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Attribute {
     pub value: String,
     pub span: SpanData,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Ref {
     pub kind: RefKind,
     pub span: SpanData,
     pub ref_id: Id,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RefKind {
     Function,
     Mod,
@@ -241,14 +272,18 @@ pub enum RefKind {
     Variable,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct MacroRef {
     pub span: SpanData,
     pub qualname: String,
     pub callee_span: SpanData,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Relation {
     pub span: SpanData,
     pub kind: RelationKind,
@@ -256,7 +291,9 @@ pub struct Relation {
     pub to: Id,
 }
 
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RelationKind {
     Impl {
         id: u32,
@@ -264,14 +301,18 @@ pub enum RelationKind {
     SuperTrait,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Signature {
     pub text: String,
     pub defs: Vec<SigElement>,
     pub refs: Vec<SigElement>,
 }
 
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct SigElement {
     pub id: Id,
     pub start: usize,
@@ -281,7 +322,9 @@ pub struct SigElement {
 // Each `BorrowData` represents all of the scopes, loans and moves
 // within an fn or closure referred to by `ref_id`.
 #[cfg(feature = "borrows")]
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct BorrowData {
     pub ref_id: Id,
     pub scopes: Vec<Scope>,
@@ -291,7 +334,9 @@ pub struct BorrowData {
 }
 
 #[cfg(feature = "borrows")]
-#[derive(Debug, RustcDecodable, RustcEncodable, Clone, Copy)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone, Copy)]
 pub enum BorrowKind {
     ImmBorrow,
     MutBorrow,
@@ -302,7 +347,9 @@ pub enum BorrowKind {
 // Not all loans will be valid. Invalid loans can be used to help explain
 // improper usage.
 #[cfg(feature = "borrows")]
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Loan {
     pub ref_id: Id,
     pub kind: BorrowKind,
@@ -312,7 +359,9 @@ pub struct Loan {
 // Each `Move` represents an attempt to move the value referred to by `ref_id`.
 // Not all `Move`s will be valid but can be used to help explain improper usage.
 #[cfg(feature = "borrows")]
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Move {
     pub ref_id: Id,
     pub span: SpanData,
@@ -322,7 +371,9 @@ pub struct Move {
 // Its ref_id refers to the variable, and the span refers to the scope/region where
 // the variable is "live".
 #[cfg(feature = "borrows")]
-#[derive(Debug, Clone, RustcDecodable, RustcEncodable)]
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
 pub struct Scope {
     pub ref_id: Id,
     pub span: SpanData,
