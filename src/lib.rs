@@ -29,7 +29,7 @@ use config::Config;
 
 #[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 #[repr(C)]
 pub struct Analysis {
     /// The Config used to generate this analysis data.
