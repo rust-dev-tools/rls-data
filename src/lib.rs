@@ -143,6 +143,7 @@ pub struct Import {
     pub kind: ImportKind,
     pub ref_id: Option<Id>,
     pub span: SpanData,
+    pub alias_span: Option<SpanData>,
     pub name: String,
     pub value: String,
     pub parent: Option<Id>,
