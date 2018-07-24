@@ -34,6 +34,7 @@ use config::Config;
 pub struct Analysis {
     /// The Config used to generate this analysis data.
     pub config: Config,
+    pub version: Option<String>,
     pub prelude: Option<CratePreludeData>,
     pub imports: Vec<Import>,
     pub defs: Vec<Def>,
@@ -50,6 +51,7 @@ impl Analysis {
     pub fn new(config: Config) -> Analysis {
         Analysis {
             config,
+            version: option_env!("CARGO_PKG_VERSION").map(|s| s.to_string()),
             prelude: None,
             imports: vec![],
             defs: vec![],
@@ -64,6 +66,7 @@ impl Analysis {
     pub fn new(config: Config) -> Analysis {
         Analysis {
             config,
+            version: option_env!("CARGO_PKG_VERSION").map(|s| s.to_string()),
             prelude: None,
             imports: vec![],
             defs: vec![],
