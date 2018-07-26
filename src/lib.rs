@@ -198,6 +198,7 @@ pub enum DefKind {
     Trait,
     // value = type + generics
     Function,
+    ForeignFunction,
     // value = type + generics
     Method,
     // No id, no value.
@@ -209,6 +210,7 @@ pub enum DefKind {
     // value = type and init expression (for all variable kinds).
     Local,
     Static,
+    ForeignStatic,
     Const,
     Field,
     // no value
