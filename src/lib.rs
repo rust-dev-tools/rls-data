@@ -35,6 +35,7 @@ pub struct Analysis {
     /// The Config used to generate this analysis data.
     pub config: Config,
     pub version: Option<String>,
+    pub compilation: Option<CompilationOptions>,
     pub prelude: Option<CratePreludeData>,
     pub imports: Vec<Import>,
     pub defs: Vec<Def>,
@@ -53,6 +54,7 @@ impl Analysis {
             config,
             version: option_env!("CARGO_PKG_VERSION").map(|s| s.to_string()),
             prelude: None,
+            compilation: None,
             imports: vec![],
             defs: vec![],
             impls: vec![],
@@ -113,6 +115,16 @@ pub struct SpanData {
     // Character offset.
     pub column_start: span::Column<span::OneIndexed>,
     pub column_end: span::Column<span::OneIndexed>,
+}
+
+#[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serialize-rustc", derive(RustcDecodable, RustcEncodable))]
+#[derive(Debug, Clone)]
+pub struct CompilationOptions {
+    pub directory: PathBuf,
+    pub program: String,
+    pub arguments: Vec<String>,
+    pub output: PathBuf,
 }
 
 #[cfg_attr(feature = "serialize-serde", derive(Serialize, Deserialize))]
