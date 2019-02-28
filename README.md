@@ -1,4 +1,5 @@
 # RLS-data
+**NOTE:** Development has been moved to the central [RLS](https://github.com/rust-lang/rls) repository.
 
 Data structures used by the RLS and the Rust compiler.
 
